@@ -12,15 +12,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 
-# -------------------------------
-# 1. Page Config
-# -------------------------------
 st.set_page_config(page_title="Healthcare DSS Prototype", layout="wide")
 st.title("Decision Support System for Chronic Disease Risk Prediction")
-
-# -------------------------------
-# 2. Dataset Loading
-# -------------------------------
 @st.cache_data
 def load_datasets():
     diabetes = pd.read_csv("diabetes.csv")
@@ -28,16 +21,8 @@ def load_datasets():
     return diabetes, heart
 
 diabetes, heart = load_datasets()
-
-# -------------------------------
-# 3. Convert Heart Disease to Binary
-# -------------------------------
-# 0 = no heart disease, 1 = any heart disease
 heart["num"] = heart["num"].apply(lambda x: 0 if x == 0 else 1)
 
-# -------------------------------
-# 4. Preprocessing Function
-# -------------------------------
 def preprocess_data(df, target_col, drop_cols=None):
     df = df.copy()
     
@@ -59,9 +44,6 @@ def preprocess_data(df, target_col, drop_cols=None):
     
     return X, X_scaled, y, scaler
 
-# -------------------------------
-# 5. Train Models Function
-# -------------------------------
 def train_models(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
@@ -80,10 +62,6 @@ def train_models(X, y):
         results[name] = {"model": model, "accuracy": acc}
     
     return results, (X_test, y_test)
-
-# -------------------------------
-# 6. Preprocess datasets and train models
-# -------------------------------
 X_dia, X_dia_scaled, y_dia, scaler_dia = preprocess_data(diabetes, target_col="Outcome")
 dia_models, dia_test = train_models(X_dia_scaled, y_dia)
 
@@ -91,10 +69,7 @@ X_heart, X_heart_scaled, y_heart, scaler_heart = preprocess_data(
     heart, target_col="num", drop_cols=["id", "dataset"]
 )
 heart_models, heart_test = train_models(X_heart_scaled, y_heart)
-
-# -------------------------------
-# 7. Risk Stratification Function
-# -------------------------------
+#Risk Stratification Function
 def stratify_risk(prob):
     if prob < 0.33:
         return "Low Risk", "✅ Maintain healthy lifestyle, regular checkups"
@@ -102,10 +77,6 @@ def stratify_risk(prob):
         return "Medium Risk", "⚠ Improve diet & exercise, monitor regularly"
     else:
         return "High Risk", "🚨 Consult doctor immediately, further tests required"
-
-# -------------------------------
-# 8. User Interface
-# -------------------------------
 st.sidebar.header("Select Disease to Predict")
 choice = st.sidebar.radio("Choose Model:", ["Diabetes", "Heart Disease"])
 
@@ -172,9 +143,6 @@ elif choice == "Heart Disease":
     if st.button("Predict Heart Disease Risk"):
         display_result(risk, recommendation)
 
-# -------------------------------
-# 9. Model Evaluation Section
-# -------------------------------
 st.sidebar.subheader("Evaluation")
 if st.sidebar.checkbox("Show Evaluation Metrics"):
     if choice == "Diabetes":
@@ -203,3 +171,4 @@ if st.sidebar.checkbox("Show Evaluation Metrics"):
     ax.set_title("ROC Curve")
     ax.legend()
     st.pyplot(fig)
+
