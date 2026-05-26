@@ -36,7 +36,7 @@ def preprocess_data(df, target_col, drop_cols=None):
     
     df = df.fillna(df.median(numeric_only=True))
     
-    X = df.drop(columns=[target_col]+drop_cols)
+    X = df.drop(columns=[target_col])
     y = df[target_col]
     X = X.select_dtypes(include=['number'])
     X = X.fillna(X.mean())
