@@ -36,13 +36,15 @@ def preprocess_data(df, target_col, drop_cols=None):
     
     df = df.fillna(df.median(numeric_only=True))
     
-    X = df.drop(columns=[target_col])
+    X = df.drop(columns=[target_col]+drop_cols)
     y = df[target_col]
-    
-    scaler = StandardScaler().fit(X)
-    X_scaled = scaler.transform(X)
-    
+    X = X.select_dtypes(include=['number'])
+    X = X.fillna(X.mean())
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
     return X, X_scaled, y, scaler
+    
 
 def train_models(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
